@@ -5,7 +5,7 @@ const balanceMissing        = "Invalid input : Balance is missing"
 const descriptionMissing    = "Invalid input : Description is missing"
 const invalidWalletId       = "Invalid input : WalletId is mandatory"
 
-const createNewWalletCtrl = (req, res) => {
+const createNewWalletController = (req, res) => {
     try {
         if(req?.body && req.body?.name && req.body?.balance){
             const { name, balance } = req.body
@@ -31,7 +31,7 @@ const createNewWalletCtrl = (req, res) => {
     }
 }
 
-const fetchWalletByIdCtrl = (req, res) => {
+const fetchWalletByIdController = (req, res) => {
     try {
         if(req?.params?.walletId){
             const walletId = req.params.walletId
@@ -46,7 +46,7 @@ const fetchWalletByIdCtrl = (req, res) => {
     }
 }
 
-function createTransactionCtrl(req, res) {
+function createTransactionController(req, res) {
     try{
         if(req?.params?.walletId && req?.body?.amount && req?.body?.description){
             const walletId      = req.params.walletId
@@ -77,7 +77,7 @@ function createTransactionCtrl(req, res) {
     }
 }
 
-function fetchTransactionsForWalletCtrl(req, res) {
+function fetchTransactionsForWalletController(req, res) {
     try {
         if(req?.params?.walletId){
             const walletId = req.params.walletId
@@ -100,8 +100,8 @@ function fetchTransactionsForWalletCtrl(req, res) {
 }
 
 module.exports = {
-    createNewWalletCtrl, 
-    fetchWalletByIdCtrl, 
-    createTransactionCtrl,
-    fetchTransactionsForWalletCtrl
+    createNewWalletController, 
+    fetchWalletByIdController, 
+    createTransactionController,
+    fetchTransactionsForWalletController
 }
