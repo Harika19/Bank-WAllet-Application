@@ -1,0 +1,22 @@
+{
+  "name": "bank-wallet-application",
+  "version": "1.0.0",
+  "description": "Wallet Coding Challenge",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harika19/Bank-WAllet-Application.git"
+  },
+  "author": "Harika Puppala",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Harika19/Bank-WAllet-Application/issues"
+  },
+  "homepage": "https://github.com/Harika19/Bank-WAllet-Application#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
