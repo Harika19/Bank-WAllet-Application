@@ -1,2 +1,2 @@
 # Bank-WAllet-Application
-Node Crud Application Challenge - Wallet Coding Challenge - ADMIRAL INDIA
+Node.JS Application - Wallet Coding Challenge - ADMIRAL INDIA
