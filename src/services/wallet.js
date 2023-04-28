@@ -1,28 +1,44 @@
+const Errors = require('./../errors/index')
+const { constants } = require('./../constants')
+const { WALLET_PREFIX, TRANSACTION_PREFIX, WITHDRAWAL, DEPOSIT } = constants
+
 const database                  = new Map()
 const transactionLog            = new Map()
-const transactionIdForWalletIds = new Map()
-const wallet = "wallet"
+const transactionIdForWallet    = new Map()
+
 let accountId = 1
 
+/**
+ * This function creates a new wallet into the database and returns the wallet details
+ * @param {String} name 
+ * @param {Number} balance 
+ * @returns 
+ */
 function createNewWallet(name, balance) {
-    const id = wallet+accountId
+    const id = WALLET_PREFIX + accountId
+
     const account = {
         walletId: id,
         name,
         balance: Number(balance),
         createdDate: new Date()
     };
+
     database.set(id, account)
     accountId++
-    console.log('Database: ', database)
+
     return account
 }
 
+/**
+ * This function fetches wallet details
+ * @param {*} walletId 
+ * @returns 
+ */
 function fetchWalletById(walletId) {
     try{
-        if(!database.has(walletId)){
-            throw new Error('Wallet not found')
-        }
+        validateWalletId(walletId)
+
         const details = database.get(walletId)
         return details
     }catch(error){
@@ -31,26 +47,27 @@ function fetchWalletById(walletId) {
     }
 }
 
+/**
+ * This function creates a new transaction and returns the transaction details
+ * @param {*} walletId 
+ * @param {*} amount 
+ * @param {*} description 
+ * @returns 
+ */
 function createTransaction(walletId, amount, description){
     try{
-        console.log(' 11 ', walletId, amount, description, database)
-
-        if(!database.has(walletId)){
-            throw new Error('Invalid WalletID')
-        }
+        validateWalletId(walletId)
 
         let customerDetail = database.get(walletId)
         if(amount < 0 && customerDetail.balance < Math.abs(amount)){
-            throw new Error(' Withdrawal amount cannot exceed the account balance')
+            throw new Error(Errors.WITHDRAWAL_AMOUNT_EXCEED_ERROR)
         }
 
         customerDetail.balance += amount
         database.set(walletId, customerDetail)
         
-        const transactionType = amount >= 0 ? "Deposit" : "Withdrawal"
-        
-        const newTransactionNumber = transactionIdForWalletIds.get(walletId) ?? 1
-        const transactionId = "txn-"+walletId+"-"+newTransactionNumber
+        const transactionType = amount >= 0 ? DEPOSIT : WITHDRAWAL
+        const transactionId = generateTransactionIdForGivenWallet(walletId)
 
         const transactionDetails = {
             transactionId,
@@ -61,22 +78,12 @@ function createTransaction(walletId, amount, description){
             createdDate: new Date(),
             transactionType
         }
-
-        console.log(' transactionDetails:  ', transactionDetails)
-        
-        // Incrementing the transactionId based upon the customer (i.e., walletId)
-        transactionIdForWalletIds.set(walletId, transactionId+1)
         
         // Adding this transaction to the log
         const previousTransactionDetails = transactionLog.get(walletId) ?? []
-        console.log( 'previousTransactionDetails', previousTransactionDetails )
         previousTransactionDetails.push(transactionDetails)
-
         transactionLog.set(walletId, previousTransactionDetails)
 
-        console.log('transactionIdForWalletIds: ', transactionIdForWalletIds)
-        console.log('transactionLog ', transactionLog)
-        console.log('database ', database)
         return transactionDetails
     } catch(error){
         console.log('[Service] Error in createTransaction: ', error)
@@ -84,17 +91,46 @@ function createTransaction(walletId, amount, description){
     }
 }
 
+/**
+ * This function fetches transaction log for a particular wallet 
+ * @param {*} walletId 
+ * @returns 
+ */
 function fetchTransactionsForWallet(walletId){
     try{
-        if(!database.has(walletId)){
-            throw new Error('Invalid WalletID')
-        }
+        validateWalletId(walletId)
 
         return transactionLog.get(walletId)
     }catch(error) {
         console.log('[Service] Error in fetchTransactionsForWallet: ', error)
         throw error
     }
+}
+
+/**
+ * This function checks if wallet exists or not
+ * @param {*} walletId 
+ */
+function validateWalletId(walletId){
+    if(!database.has(walletId)){
+        throw new Error(Errors.WALLET_NOT_FOUND)
+    }
+}
+
+/**
+ * This function creates and returns transactionId
+ * @param {*} walletId 
+ * @returns 
+ */
+function generateTransactionIdForGivenWallet(walletId){
+    const newTransactionNumber = transactionIdForWallet.get(walletId) ?? 1
+
+    // Incrementing the transactionId based upon the customer (i.e., walletId)
+    transactionIdForWallet.set(walletId, newTransactionNumber+1)
+
+    const transactionId = TRANSACTION_PREFIX + walletId + "-" + newTransactionNumber
+
+    return transactionId
 }
 
 module.exports = { 
